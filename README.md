@@ -1,1 +1,1 @@
-# tryhackme-badge
+![TryHackMe Rank](assets/tryhackme-badge.png)
