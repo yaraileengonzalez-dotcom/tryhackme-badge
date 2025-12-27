@@ -1,41 +1,25 @@
-name: TryHackMe Badge
+name: Update TryHackMe Badge
 
 on:
-  workflow_dispatch: # manual trigger
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   update-badge:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Ensure assets folder exists
-        run: mkdir -p ./assets
-
-      - name: Download badge
-        run: |
-          USERNAME="yg3721"
-          BADGE_URL="https://tryhackme-badges.s3.amazonaws.com/${USERNAME}.png"
-
-          echo "Downloading badge for $USERNAME..."
-          # Use -f to fail silently if badge doesn't exist
-          if curl -f -s -o ./assets/tryhackme-badge.png "$BADGE_URL"; then
-            echo "Badge downloaded."
-          else
-            echo "Badge not found, skipping."
-            touch ./assets/tryhackme-badge.png
-          fi
-
-      - name: Commit & push (if changes exist)
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./assets/tryhackme-badge.png
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update TryHackMe badge"
-            git push
-          fi
+    - name: Fetch TryHackMe Badge
+      uses: geeekgod/tryhackme-badge-action@v1.0
+      with:
+        image_path: './assets/badge.png'
+        username: 'yg3721'
+        user_id: 'your_tryhackme_user_id'
+        committer_username: 'yaraileengonzalez-dotcom'
+        committer_email: 'yaraileen.gonzalez@gmail.com'
+        commit_message: 'Updated THM profile badge'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
