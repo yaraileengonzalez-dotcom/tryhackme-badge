@@ -2,8 +2,8 @@ name: Update TryHackMe Badge
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight
-  workflow_dispatch: # Allows manual trigger
+    - cron: '0 0 * * *' # runs daily at midnight
+  workflow_dispatch:
 
 jobs:
   update-badge:
@@ -17,5 +17,5 @@ jobs:
       uses: DhanushNehru/tryhackme-badge-action-workflow@v1.0
       with:
         image_path: './assets/tryhackme-badge.png'
-        username: 'yg3721'
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        username: 'yg3721'   # <-- replace with your TryHackMe username
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # built-in token, no need to create
