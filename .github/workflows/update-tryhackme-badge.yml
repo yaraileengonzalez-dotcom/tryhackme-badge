@@ -1,36 +1,41 @@
 name: TryHackMe Badge
 
 on:
-  workflow_dispatch:  # Allows manual run from Actions tab
+  workflow_dispatch: # manual trigger
 
 jobs:
   update-badge:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repo
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # Step 2: Ensure assets folder exists
-      - name: Ensure assets folder
-        run: |
-          mkdir -p ./assets
+      - name: Ensure assets folder exists
+        run: mkdir -p ./assets
 
-      # Step 3: Download the badge
-      - name: Download TryHackMe badge
+      - name: Download badge
         run: |
           USERNAME="yg3721"
           BADGE_URL="https://tryhackme-badges.s3.amazonaws.com/${USERNAME}.png"
 
           echo "Downloading badge for $USERNAME..."
-          curl -f -s -o ./assets/tryhackme-badge.png "$BADGE_URL" || echo "Badge not found, skipping download"
+          # Use -f to fail silently if badge doesn't exist
+          if curl -f -s -o ./assets/tryhackme-badge.png "$BADGE_URL"; then
+            echo "Badge downloaded."
+          else
+            echo "Badge not found, skipping."
+            touch ./assets/tryhackme-badge.png
+          fi
 
-      # Step 4: Commit & push changes (if any)
-      - name: Commit & Push
+      - name: Commit & push (if changes exist)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add ./assets/tryhackme-badge.png
-          git diff --cached --quiet || git commit -m "Update TryHackMe badge"
-          git push || echo "Nothing to push"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update TryHackMe badge"
+            git push
+          fi
