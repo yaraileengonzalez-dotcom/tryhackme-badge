@@ -1,21 +1,31 @@
-name: Update TryHackMe Badge
+name: TryHackMe Badge
 
 on:
+  workflow_dispatch:  # lets you run it manually
   schedule:
-    - cron: '0 0 * * *' # runs daily at midnight
-  workflow_dispatch:
+    - cron: '0 0 * * *' # optional: runs daily at midnight
 
 jobs:
-  update-badge:
+  generate-badge:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Fetch TryHackMe Badge
-      uses: DhanushNehru/tryhackme-badge-action-workflow@v1.0
-      with:
-        image_path: './assets/tryhackme-badge.png'
-        username: 'yg3721'   # <-- replace with your TryHackMe username
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # built-in token, no need to create
+      - name: Create assets folder if missing
+        run: mkdir -p ./assets
+
+      - name: Fetch TryHackMe badge
+        run: |
+          USERNAME="yg3721"
+          BADGE_URL="https://tryhackme-badges.s3.amazonaws.com/${USERNAME}.png"
+          curl -o ./assets/tryhackme-badge.png $BADGE_URL
+
+      - name: Commit & Push Badge
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add ./assets/tryhackme-badge.png
+          git commit -m "Update TryHackMe badge" || echo "No changes to commit"
+          git push
